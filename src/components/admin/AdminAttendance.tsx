@@ -54,10 +54,6 @@ const AdminAttendance = () => {
           <Label>Date</Label>
           <Input type="date" value={date} onChange={e => setDate(e.target.value)} className="w-44" />
         </div>
-        <div className="space-y-1">
-          <Label>Cost Per Day (₹)</Label>
-          <Input type="number" value={costPerDay} onChange={e => setCostPerDay(e.target.value)} className="w-32" />
-        </div>
       </div>
 
       <div className="flex gap-2 mb-4">
@@ -95,10 +91,6 @@ const AdminAttendance = () => {
 
       <div className="flex gap-3">
         <Button onClick={save} className="gradient-primary text-primary-foreground">Save Attendance</Button>
-        <Button variant="outline" onClick={generateBills}>
-          <CalendarDays className="w-4 h-4 mr-2" />
-          Generate Monthly Bills
-        </Button>
       </div>
     </div>
   );
