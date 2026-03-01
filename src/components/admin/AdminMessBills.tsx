@@ -5,13 +5,14 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
-import { Receipt, IndianRupee } from 'lucide-react';
+import { Receipt, IndianRupee, CalendarDays } from 'lucide-react';
 
 const AdminMessBills = () => {
   const students = getAllStudents();
   const [costPerDay, setCostPerDay] = useState('120');
 
   const generateSemBills = () => toast.success('Semester bills generated for all students!');
+  const generateMonthlyBills = () => toast.success('Monthly bills generated for all students!');
   const updateCost = () => toast.success(`Mess cost updated to ₹${costPerDay}/day`);
 
   return (
@@ -35,10 +36,14 @@ const AdminMessBills = () => {
       </Card>
 
       {/* Actions */}
-      <div className="mb-6">
+      <div className="mb-6 flex flex-wrap gap-3">
         <Button onClick={generateSemBills} className="gradient-primary text-primary-foreground">
           <Receipt className="w-4 h-4 mr-2" />
           Generate Semester Bills (6 months)
+        </Button>
+        <Button onClick={generateMonthlyBills} variant="outline">
+          <CalendarDays className="w-4 h-4 mr-2" />
+          Generate Monthly Bills
         </Button>
       </div>
 

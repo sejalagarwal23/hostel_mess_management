@@ -45,14 +45,6 @@ const StudentMessBill = ({ bills }: { bills: MessBill[] }) => {
               <BillRow label="Cost Per Day" value={`₹${bill.costPerDay}`} />
               <div className="border-t border-border my-2" />
               <BillRow label="Total Amount" value={`₹${bill.totalAmount}`} bold />
-              <BillRow label="Paid Amount" value={`₹${bill.paidAmount}`} />
-              <div className="border-t border-border my-2" />
-              <div className="flex items-center justify-between p-3 rounded-lg bg-muted">
-                <span className="font-medium text-foreground">Balance Due</span>
-                <span className={`text-lg font-bold ${bill.balance > 0 ? 'text-destructive' : 'text-success'}`}>
-                  ₹{bill.balance}
-                </span>
-              </div>
             </div>
           </CardContent>
         </Card>
