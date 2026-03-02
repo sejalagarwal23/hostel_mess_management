@@ -7,31 +7,50 @@ import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { Receipt, IndianRupee, CalendarDays } from 'lucide-react';
 
+const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
 const AdminMessBills = () => {
   const students = getAllStudents();
-  const [costPerDay, setCostPerDay] = useState('120');
+  const [monthlyCosts, setMonthlyCosts] = useState<Record<number, string>>(
+    Object.fromEntries(months.map((_, i) => [i + 1, '120']))
+  );
 
   const generateSemBills = () => toast.success('Semester bills generated for all students!');
   const generateMonthlyBills = () => toast.success('Monthly bills generated for all students!');
-  const updateCost = () => toast.success(`Mess cost updated to ₹${costPerDay}/day`);
+
+  const handleCostChange = (month: number, value: string) => {
+    setMonthlyCosts(prev => ({ ...prev, [month]: value }));
+  };
+
+  const handleSaveCosts = () => {
+    toast.success('Monthly cost per day updated successfully!');
+  };
 
   return (
     <div className="max-w-3xl">
       <h1 className="text-2xl font-heading font-bold text-foreground mb-6">Mess Bill Management</h1>
 
-      {/* Config */}
+      {/* Monthly Cost Per Day */}
       <Card className="shadow-card mb-6">
         <CardHeader>
-          <CardTitle className="text-lg flex items-center gap-2"><IndianRupee className="w-5 h-5" /> Global Mess Cost</CardTitle>
+          <CardTitle className="text-lg flex items-center gap-2"><IndianRupee className="w-5 h-5" /> Monthly Cost Per Day</CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="flex items-end gap-3">
-            <div className="space-y-1 flex-1">
-              <Label>Cost Per Day (₹)</Label>
-              <Input type="number" value={costPerDay} onChange={e => setCostPerDay(e.target.value)} />
-            </div>
-            <Button onClick={updateCost} variant="outline">Update</Button>
+        <CardContent className="space-y-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            {months.map((m, i) => (
+              <div key={i} className="space-y-1">
+                <Label className="text-xs">{m}</Label>
+                <Input
+                  type="number"
+                  min={0}
+                  value={monthlyCosts[i + 1]}
+                  onChange={e => handleCostChange(i + 1, e.target.value)}
+                  className="h-9"
+                />
+              </div>
+            ))}
           </div>
+          <Button onClick={handleSaveCosts} className="w-full gradient-primary text-primary-foreground mt-2">Save Costs</Button>
         </CardContent>
       </Card>
 

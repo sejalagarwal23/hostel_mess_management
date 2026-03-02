@@ -5,66 +5,85 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
-import { TreePalm, IndianRupee } from 'lucide-react';
-
-const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+import { TreePalm } from 'lucide-react';
 
 const AdminLeave = () => {
   const students = getAllStudents();
   const [rollNumber, setRollNumber] = useState('');
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
+  const [showSuggestions, setShowSuggestions] = useState(false);
 
-  // Monthly cost per day configuration
-  const [monthlyCosts, setMonthlyCosts] = useState<Record<number, string>>(
-    Object.fromEntries(months.map((_, i) => [i + 1, '120']))
-  );
+  const filteredStudents = rollNumber.trim()
+    ? students.filter(s =>
+        s.rollNumber.toLowerCase().includes(rollNumber.toLowerCase()) ||
+        s.name.toLowerCase().includes(rollNumber.toLowerCase())
+      )
+    : [];
 
-  const matchedStudent = students.find(
+  const selectedStudent = students.find(
     s => s.rollNumber.toLowerCase() === rollNumber.toLowerCase()
   );
 
+  const handleSelectStudent = (roll: string) => {
+    setRollNumber(roll);
+    setShowSuggestions(false);
+  };
+
   const handleSave = () => {
-    if (!matchedStudent || !fromDate || !toDate) {
-      toast.error('Please enter a valid roll number and fill all fields');
+    if (!selectedStudent || !fromDate || !toDate) {
+      toast.error('Please select a valid student and fill all fields');
       return;
     }
-    toast.success(`Leave assigned to ${matchedStudent.name} successfully!`);
+    toast.success(`Leave assigned to ${selectedStudent.name} successfully!`);
     setRollNumber('');
     setFromDate('');
     setToDate('');
-  };
-
-  const handleCostChange = (month: number, value: string) => {
-    setMonthlyCosts(prev => ({ ...prev, [month]: value }));
-  };
-
-  const handleSaveCosts = () => {
-    toast.success('Monthly cost per day updated successfully!');
   };
 
   return (
     <div className="max-w-2xl space-y-6">
       <h1 className="text-2xl font-heading font-bold text-foreground">Leave Management</h1>
 
-      {/* Assign Leave */}
       <Card className="shadow-card">
         <CardHeader>
           <CardTitle className="text-lg flex items-center gap-2"><TreePalm className="w-5 h-5" /> Assign Leave</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="space-y-2">
+          <div className="space-y-2 relative">
             <Label>Student Roll Number</Label>
             <Input
-              placeholder="Enter roll number e.g. 2021CS001"
+              placeholder="Search by roll number or name..."
               value={rollNumber}
-              onChange={e => setRollNumber(e.target.value)}
+              onChange={e => { setRollNumber(e.target.value); setShowSuggestions(true); }}
+              onFocus={() => setShowSuggestions(true)}
             />
-            {rollNumber && matchedStudent && (
-              <p className="text-xs text-success">Found: {matchedStudent.name}</p>
+            {/* Suggestions dropdown */}
+            {showSuggestions && rollNumber.trim() && filteredStudents.length > 0 && !selectedStudent && (
+              <div className="absolute z-10 top-full left-0 right-0 mt-1 bg-popover border border-border rounded-lg shadow-lg max-h-48 overflow-y-auto">
+                {filteredStudents.map(s => (
+                  <button
+                    key={s.id}
+                    type="button"
+                    className="w-full text-left px-3 py-2 hover:bg-accent flex items-center gap-3 transition-colors"
+                    onClick={() => handleSelectStudent(s.rollNumber)}
+                  >
+                    <div className="w-7 h-7 rounded-md gradient-primary flex items-center justify-center text-xs font-bold text-primary-foreground">
+                      {s.name.charAt(0)}
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-foreground">{s.name}</p>
+                      <p className="text-xs text-muted-foreground">{s.rollNumber}</p>
+                    </div>
+                  </button>
+                ))}
+              </div>
             )}
-            {rollNumber && !matchedStudent && (
-              <p className="text-xs text-destructive">No student found with this roll number</p>
+            {rollNumber && selectedStudent && (
+              <p className="text-xs text-success">Selected: {selectedStudent.name}</p>
+            )}
+            {rollNumber && !selectedStudent && filteredStudents.length === 0 && (
+              <p className="text-xs text-destructive">No student found</p>
             )}
           </div>
           <div className="space-y-2">
@@ -76,30 +95,6 @@ const AdminLeave = () => {
             <Input type="date" value={toDate} onChange={e => setToDate(e.target.value)} />
           </div>
           <Button onClick={handleSave} className="w-full gradient-primary text-primary-foreground">Save Leave</Button>
-        </CardContent>
-      </Card>
-
-      {/* Monthly Cost Per Day */}
-      <Card className="shadow-card">
-        <CardHeader>
-          <CardTitle className="text-lg flex items-center gap-2"><IndianRupee className="w-5 h-5" /> Monthly Cost Per Day</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-            {months.map((m, i) => (
-              <div key={i} className="space-y-1">
-                <Label className="text-xs">{m}</Label>
-                <Input
-                  type="number"
-                  min={0}
-                  value={monthlyCosts[i + 1]}
-                  onChange={e => handleCostChange(i + 1, e.target.value)}
-                  className="h-9"
-                />
-              </div>
-            ))}
-          </div>
-          <Button onClick={handleSaveCosts} className="w-full gradient-primary text-primary-foreground mt-2">Save Costs</Button>
         </CardContent>
       </Card>
     </div>
