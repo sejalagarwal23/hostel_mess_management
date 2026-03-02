@@ -104,7 +104,7 @@
 
 @layer utilities {
   .gradient-primary {
-    background: linear-gradient(135deg, hsl(11, 74%, 24%), hsl(7, 89%, 35%));
+    background: linear-gradient(135deg, hsl(239, 37%, 32%), hsl(257, 8%, 36%));
   }
   .gradient-accent {
     background: linear-gradient(135deg, hsl(0, 0%, 100%), hsl(33, 5%, 65%));

@@ -40,7 +40,7 @@ const StudentDetailsCard = ({ user }: { user: User }) => {
       <Card className="shadow-card">
         <CardHeader className="pb-4">
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-2xl gradient-primary flex items-center justify-center text-2xl font-bold text-primary-foreground">
+            <div className="w-16 h-16 rounded-2xl gradient-accent flex items-center justify-center text-2xl font-bold text-accent-foreground">
               {user.name.charAt(0)}
             </div>
             <div>
