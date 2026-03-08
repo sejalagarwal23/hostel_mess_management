@@ -5,8 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
 
 /*
-  🔵 BILLING IS STILL MOCK (INTENTIONAL)
-
+  
   We are keeping billing mock for now.
   Remove bills array once:
   - You create backend bill model

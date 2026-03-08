@@ -1,6 +1,5 @@
 // controllers/authController.js
 // FRONTEND LINK: Called from Login.tsx via POST /api/auth/login
-// Replace the mock login in src/lib/store.ts with:
 //   const res = await fetch('http://localhost:5000/api/auth/login', {
 //     method: 'POST', headers: { 'Content-Type': 'application/json' },
 //     body: JSON.stringify({ rollNumber, password, role })

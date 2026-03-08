@@ -24,7 +24,7 @@ exports.markAttendance = async (req, res) => {
 
     const existing = await Attendance.findOne({ userId, date });
 
-    // 🚫 Do not overwrite leave
+   
     if (existing && existing.status === "leave") {
       return res.json({
         message: "Student is on leave. Attendance not modified.",
