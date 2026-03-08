@@ -1,11 +1,11 @@
 import { useState } from 'react';
-import { useAuth, mockAttendance, mockBills, mockNotifications } from '@/lib/store';
+import { useAuth } from '@/lib/store';
 import { Navigate } from 'react-router-dom';
 import DashboardLayout from '@/components/DashboardLayout';
 import StudentDetailsCard from '@/components/student/StudentDetailsCard';
 import StudentMessBill from '@/components/student/StudentMessBill';
-import StudentAttendance from '@/components/student/StudentAttendance';
 import StudentRules from '@/components/student/StudentRules';
+import StudentAttendance from '@/components/student/StudentAttendance';
 import StudentNotifications from '@/components/student/StudentNotifications';
 import { User, Receipt, CalendarDays, BookOpen, Bell } from 'lucide-react';
 
@@ -21,16 +21,23 @@ const StudentDashboard = () => {
   const user = useAuth(s => s.user);
   const [activeTab, setActiveTab] = useState('details');
 
-  if (!user || user.role !== 'student') return <Navigate to="/" replace />;
+  if (!user || user.role !== 'student')
+    return <Navigate to="/" replace />;
 
   return (
     <DashboardLayout tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab}>
       <div className="animate-fade-in">
+        
         {activeTab === 'details' && <StudentDetailsCard user={user} />}
-        {activeTab === 'bill' && <StudentMessBill bills={mockBills} />}
-        {activeTab === 'attendance' && <StudentAttendance attendance={mockAttendance} bills={mockBills} />}
+
+        {activeTab === 'bill' && <StudentMessBill />}
+
+        {activeTab === 'attendance' && <StudentAttendance />}
+
         {activeTab === 'rules' && <StudentRules />}
-        {activeTab === 'notifications' && <StudentNotifications notifications={mockNotifications} />}
+
+        {activeTab === 'notifications' && <StudentNotifications />}
+
       </div>
     </DashboardLayout>
   );

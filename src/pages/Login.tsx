@@ -1,3 +1,4 @@
+//ye pagebackend k sath connect karna h 
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth, UserRole } from '@/lib/store';
@@ -14,7 +15,7 @@ const Login = () => {
   const login = useAuth(s => s.login);
   const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
@@ -23,7 +24,7 @@ const Login = () => {
       return;
     }
 
-    const success = login(rollNumber, password, role);
+    const success = await login(rollNumber, password, role);
 
     if (success) {
       navigate(role === 'admin' ? '/admin' : '/student');

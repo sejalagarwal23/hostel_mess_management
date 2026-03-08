@@ -1,5 +1,8 @@
-import { useState } from 'react';
-import { getAllUsers, User, mockAttendance, mockBills } from '@/lib/store';
+// src\componenets\admin\AdminManageUsers.tsx
+import { useState , useEffect } from 'react';
+// import { getAllUsers, User, mockAttendance, mockBills } from '@/lib/store';
+import { User } from '@/lib/store';
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -17,29 +20,111 @@ const AdminManageUsers = () => {
   const [view, setView] = useState<View>('list');
   const [search, setSearch] = useState('');
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
-  const users = getAllUsers();
+  const [users, setUsers] = useState<User[]>([]);
 
-  const filtered = users.filter(u =>
+   const [formData, setFormData] = useState({
+  name: "",
+  rollNumber: "",
+  password: "",
+  phone: "",
+  role: "student",
+  hostelNumber: "",
+  semester: 0
+});
+
+  useEffect(() => {
+  const loadUsers = async () => {
+    try {
+      const res = await fetch("http://localhost:5000/api/users", {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`
+        }
+      });
+
+      const data = await res.json();
+      console.log("Users from API:", data);
+      setUsers(data);
+
+
+    } catch (err) {
+      console.error("Failed to load users", err);
+    }
+  };
+
+  loadUsers();
+}, []);
+
+   const filtered = users.filter(u =>
     u.name.toLowerCase().includes(search.toLowerCase()) ||
     u.rollNumber.toLowerCase().includes(search.toLowerCase()) ||
     u.role.includes(search.toLowerCase())
   );
-
-  const handleAdd = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    toast.success('User created successfully!');
-    setView('list');
-  };
+const handleAdd = async (e: React.FormEvent<HTMLFormElement>) => {
+  e.preventDefault();
+  try {
+    const token = localStorage.getItem("token");
+    const res = await fetch("http://localhost:5000/api/auth/register", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        name: formData.name,
+        rollNumber: formData.rollNumber,
+        password: formData.password,
+        phone: formData.phone,
+        role: formData.role,
+        hostelNumber: formData.hostelNumber,
+        semester: formData.semester
+      })
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      toast.error(data.error);
+      return;
+    }
+    toast.success("User created successfully!");
+    setFormData({
+  name: "",
+  rollNumber: "",
+  password: "",
+  phone: "",
+  role: "student",
+  hostelNumber: "",
+  semester: 0
+}); 
+    setView("list");
+    // reload users
+    const usersRes = await fetch("http://localhost:5000/api/users", {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+    const users = await usersRes.json();
+    setUsers(users);
+  } catch (err) {
+    console.error(err);
+    toast.error("Failed to create user");
+  }
+};
 
   if (view === 'detail' && selectedUser) {
-    const totalDeducted = mockBills.reduce((sum, b) => sum + b.totalAmount, 0);
-    const balance = SEMESTER_PRESET - totalDeducted;
+    // const totalDeducted = mockBills.reduce((sum, b) => sum + b.totalAmount, 0);
+    // const balance = SEMESTER_PRESET - totalDeducted;
 
-    // Get attendance summary
-    const allAttendance = Object.values(mockAttendance).flat();
-    const presentDays = allAttendance.filter(a => a.status === 'present').length;
-    const absentDays = allAttendance.filter(a => a.status === 'absent').length;
-    const leaveDays = allAttendance.filter(a => a.status === 'leave').length;
+    // // Get attendance summary
+    // const allAttendance = Object.values(mockAttendance).flat();
+    // const presentDays = allAttendance.filter(a => a.status === 'present').length;
+    // const absentDays = allAttendance.filter(a => a.status === 'absent').length;
+    // const leaveDays = allAttendance.filter(a => a.status === 'leave').length;
+
+    const totalDeducted = 0;
+const balance = SEMESTER_PRESET;
+
+const presentDays = 0;
+const absentDays = 0;
+const leaveDays = 0;
 
     return (
       <div className="max-w-2xl">
@@ -135,23 +220,24 @@ const AdminManageUsers = () => {
             <form onSubmit={handleAdd} className="space-y-4">
               <div className="space-y-2">
                 <Label>Name</Label>
-                <Input placeholder="Full name" required />
+                <Input placeholder="Full name" required value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value }) } />
               </div>
               <div className="space-y-2">
                 <Label>Roll Number / Username</Label>
-                <Input placeholder="e.g. 2021CS006" required />
+                <Input placeholder="e.g. 124103001/ADMIN00X"  required value={formData.rollNumber} onChange={(e) => setFormData({ ...formData, rollNumber: e.target.value }) } />
               </div>
               <div className="space-y-2">
                 <Label>Password</Label>
-                <Input type="password" placeholder="Set password" required />
+                <Input type="password" placeholder="Set password" required value={formData.password} onChange={(e) => setFormData({ ...formData, password: e.target.value }) } />
               </div>
               <div className="space-y-2">
                 <Label>Mobile Number</Label>
-                <Input placeholder="10-digit number" required />
+                <Input placeholder="10-digit number" required value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value }) } />
               </div>
               <div className="space-y-2">
                 <Label>Role</Label>
-                <Select defaultValue="student">
+                <Select value={formData.role} onValueChange={(value) => setFormData({ ...formData, role: value })}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="student">Student</SelectItem>
@@ -161,11 +247,11 @@ const AdminManageUsers = () => {
               </div>
               <div className="space-y-2">
                 <Label>Hostel Number (if student)</Label>
-                <Input placeholder="e.g. H1" />
+                <Input placeholder="e.g. H1" value={formData.hostelNumber} onChange={(e) => setFormData({ ...formData, hostelNumber: e.target.value }) } />
               </div>
               <div className="space-y-2">
                 <Label>Semester (if student)</Label>
-                <Input type="number" placeholder="e.g. 6" min={1} max={8} />
+                <Input type="number" min={0} max={8} value={formData.semester} onChange={(e) => setFormData({ ...formData, semester: Number(e.target.value) }) } />
               </div>
               <Button type="submit" className="w-full gradient-primary text-primary-foreground">Create User</Button>
             </form>

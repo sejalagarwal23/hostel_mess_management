@@ -5,11 +5,11 @@
 
 const express = require('express');
 const router = express.Router();
-const { getBillsByUser, saveMonthlyCosts, generateMonthlyBills } = require('../controllers/billController');
+const { getStudentBills, saveMonthlyCosts, generateMonthlyBills } = require('../controllers/billController');
 const { auth, adminOnly } = require('../middleware/auth');
 
-router.get('/:userId', auth, getBillsByUser);
 router.put('/monthly-cost', auth, adminOnly, saveMonthlyCosts);
 router.post('/generate-monthly', auth, adminOnly, generateMonthlyBills);
+router.get("/student/:studentId", getStudentBills);
 
 module.exports = router;

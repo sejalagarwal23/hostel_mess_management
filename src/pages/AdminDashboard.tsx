@@ -1,3 +1,5 @@
+// src\pages\AdminDashboard.tsx
+
 import { useState } from 'react';
 import { useAuth } from '@/lib/store';
 import { Navigate } from 'react-router-dom';

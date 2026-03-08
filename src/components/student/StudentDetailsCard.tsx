@@ -1,4 +1,8 @@
+// src\components\student\StudentDetailsCard.tsx
+// src\componenets\student\StudentsDetailsCard.tsx
+
 import { useState } from 'react';
+import { ComponentType } from 'react';
 import { User } from '@/lib/store';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -14,25 +18,55 @@ const StudentDetailsCard = ({ user }: { user: User }) => {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
-  const handleChangePassword = () => {
-    if (!oldPassword || !newPassword || !confirmPassword) {
-      toast.error('Please fill all password fields');
+ const handleChangePassword = async () => {
+  if (!oldPassword || !newPassword || !confirmPassword) {
+    toast.error("Please fill all password fields");
+    return;
+  }
+
+  if (newPassword !== confirmPassword) {
+    toast.error("New password and confirm password do not match");
+    return;
+  }
+
+  if (newPassword.length < 6) {
+    toast.error("Password must be at least 6 characters");
+    return;
+  }
+
+  try {
+    const token = localStorage.getItem("token");
+
+    const res = await fetch("http://localhost:5000/api/auth/change-password", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        oldPassword,
+        newPassword
+      })
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      toast.error(data.error);
       return;
     }
-    if (newPassword !== confirmPassword) {
-      toast.error('New password and confirm password do not match');
-      return;
-    }
-    if (newPassword.length < 6) {
-      toast.error('Password must be at least 6 characters');
-      return;
-    }
-    toast.success('Password changed successfully!');
+
+    toast.success("Password updated successfully");
+
+    setOldPassword("");
+    setNewPassword("");
+    setConfirmPassword("");
     setShowChangePassword(false);
-    setOldPassword('');
-    setNewPassword('');
-    setConfirmPassword('');
-  };
+
+  } catch (err) {
+    toast.error("Server error");
+  }
+};
 
   return (
     <div className="max-w-2xl">
@@ -88,7 +122,7 @@ const StudentDetailsCard = ({ user }: { user: User }) => {
   );
 };
 
-const InfoRow = ({ icon: Icon, label, value }: { icon: any; label: string; value: string }) => (
+const InfoRow = ({ icon: Icon, label, value }: { icon: ComponentType<{ className: string }>; label: string; value: string }) => (
   <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
     <Icon className="w-4 h-4 text-muted-foreground" />
     <div>

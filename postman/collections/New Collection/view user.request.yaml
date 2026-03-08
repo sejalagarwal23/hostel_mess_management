@@ -1,0 +1,9 @@
+$kind: http-request
+name: view user
+url: http://localhost:5000/api/users
+method: GET
+auth:
+  type: bearer
+  credentials:
+    token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5YTg5MjA1MWRhY2Y4YTEyOTQ1NzRhNyIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc3MjY1Nzg0OSwiZXhwIjoxNzczMjYyNjQ5fQ.J5SEAvZp6u0BPjme0ooehq7Mb_g62QL8aisHj-Jvx9E
+order: 4362826694238539

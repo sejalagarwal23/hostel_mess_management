@@ -21,13 +21,33 @@ exports.getByUser = async (req, res) => {
 exports.markAttendance = async (req, res) => {
   try {
     const { userId, date, status } = req.body;
-    const record = await Attendance.findOneAndUpdate(
+
+    const existing = await Attendance.findOne({ userId, date });
+
+    // 🚫 Do not overwrite leave
+    if (existing && existing.status === "leave") {
+      return res.json({
+        message: "Student is on leave. Attendance not modified.",
+        attendance: existing
+      });
+    }
+
+    const attendance = await Attendance.findOneAndUpdate(
       { userId, date },
-      { status },
+      {
+        $set: {
+          userId,
+          date,
+          status
+        }
+      },
       { upsert: true, new: true }
     );
-    res.json(record);
+
+    res.json(attendance);
+
   } catch (err) {
+    console.error("ATTENDANCE ERROR:", err);
     res.status(500).json({ error: err.message });
   }
 };

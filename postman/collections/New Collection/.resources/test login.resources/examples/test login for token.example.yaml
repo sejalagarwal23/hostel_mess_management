@@ -1,0 +1,45 @@
+$kind: http-example
+name: test login for token
+request:
+  url: http://localhost:5000/api/auth/login
+  method: POST
+  body:
+    type: json
+    content: "{\r
+
+      \  \"rollNumber\": \"ADMIN001\",\r
+
+      \  \"password\": \"SEJAL\",\r
+
+      \  \"role\": \"admin\"\r
+
+      }"
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    - key: x-powered-by
+      value: Express
+    - key: access-control-allow-origin
+      value: http://localhost:8080
+    - key: vary
+      value: Origin
+    - key: access-control-allow-credentials
+      value: "true"
+    - key: content-type
+      value: application/json; charset=utf-8
+    - key: content-length
+      value: "360"
+    - key: etag
+      value: W/"168-Wq0SyEkcihvGk8VWGYzkuKcp5g8"
+    - key: date
+      value: Wed, 04 Mar 2026 20:46:43 GMT
+    - key: connection
+      value: keep-alive
+    - key: keep-alive
+      value: timeout=5
+  body:
+    type: json
+    content: '{"token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5YTg5MjA1MWRhY2Y4YTEyOTQ1NzRhNyIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc3MjY1NzIwMywiZXhwIjoxNzczMjYyMDAzfQ.jc38L75O3zgp5fgX-1-V0Y9jKemSza6ODnbpByxVUo0","user":{"id":"69a892051dacf8a1294574a7","name":"SEJAL
+      AGARWAL","rollNumber":"ADMIN001","role":"admin","phone":"9876543210","email":"124103005@nitkkr.ac.in"}}'
+order: 1772657404771

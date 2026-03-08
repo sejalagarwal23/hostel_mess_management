@@ -6,10 +6,12 @@
 
 const MessBill = require('../models/MessBill');
 const MonthlyCost = require('../models/MonthlyCost');
+const Attendance = require('../models/Attendance');
+const User = require('../models/User');
 
-exports.getBillsByUser = async (req, res) => {
+exports.getStudentBills = async (req, res) => {
   try {
-    const bills = await MessBill.find({ userId: req.params.userId }).sort({ year: -1, month: -1 });
+    const bills = await MessBill.find({ userId: req.params.studentId }).sort({ year: -1, month: -1 });
     res.json(bills);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -36,9 +38,64 @@ exports.saveMonthlyCosts = async (req, res) => {
 
 exports.generateMonthlyBills = async (req, res) => {
   try {
-    // TODO: Calculate totalDaysPresent from Attendance collection
-    // and costPerDay from MonthlyCost for each student
-    res.json({ message: 'Monthly bills generated' });
+    const { month, year } = req.body;
+
+    if (!month || !year) {
+      return res.status(400).json({ error: "Month and year are required" });
+    }
+
+    // get cost per day for that month
+    const monthlyCost = await MonthlyCost.findOne({ month, year });
+
+    if (!monthlyCost) {
+      return res.status(400).json({ error: "Monthly cost not set for this month" });
+    }
+
+    const costPerDay = monthlyCost.costPerDay;
+
+    // get all students
+    const students = await User.find({ role: "student" });
+
+    const bills = [];
+
+    for (const student of students) {
+
+      // count present days
+      const attendance = await Attendance.find({
+        userId: student._id,
+        status: "present",
+        date: {
+          $gte: new Date(year, month - 1, 1),
+          $lt: new Date(year, month, 1)
+        }
+      });
+
+      const totalDaysPresent = attendance.length;
+
+      const totalAmount = totalDaysPresent * costPerDay;
+
+      const bill = await MessBill.findOneAndUpdate(
+        { userId: student._id, month, year },
+        {
+          userId: student._id,
+          month,
+          year,
+          totalDaysPresent,
+          costPerDay,
+          totalAmount,
+          balance: totalAmount
+        },
+        { upsert: true, new: true }
+      );
+
+      bills.push(bill);
+    }
+
+    res.json({
+      message: "Monthly bills generated successfully",
+      totalStudents: bills.length
+    });
+
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

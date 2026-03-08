@@ -1,3 +1,5 @@
+//src\lib\store.ts
+
 import { create } from 'zustand';
 
 export type UserRole = 'student' | 'admin';
@@ -38,59 +40,136 @@ export interface Notification {
 interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
-  login: (rollNumber: string, password: string, role: UserRole) => boolean;
+  login: (rollNumber: string, password: string, role: UserRole) => Promise<boolean>;
   logout: () => void;
 }
-
-const mockStudents: User[] = [
-  { id: '1', name: 'Rahul Sharma', rollNumber: '2021CS001', role: 'student', phone: '9876543210', hostelNumber: 'H1', semester: 6 },
-  { id: '2', name: 'Priya Patel', rollNumber: '2021CS002', role: 'student', phone: '9876543211', hostelNumber: 'H2', semester: 6 },
-  { id: '3', name: 'Amit Kumar', rollNumber: '2021EC003', role: 'student', phone: '9876543212', hostelNumber: 'H1', semester: 4 },
-  { id: '4', name: 'Sneha Gupta', rollNumber: '2021ME004', role: 'student', phone: '9876543213', hostelNumber: 'H3', semester: 6 },
-  { id: '5', name: 'Vikram Singh', rollNumber: '2021CE005', role: 'student', phone: '9876543214', hostelNumber: 'H2', semester: 4 },
-];
-
-const mockAdmins: User[] = [
-  { id: 'a1', name: 'Dr. Rajesh Verma', rollNumber: 'ADMIN001', role: 'admin', phone: '9800000001', email: 'admin@hostel.edu' },
-];
 
 export const useAuth = create<AuthState>((set) => ({
   user: null,
   isAuthenticated: false,
-  login: (rollNumber, _password, role) => {
-    const users = role === 'admin' ? mockAdmins : mockStudents;
-    const found = users.find(u => u.rollNumber.toLowerCase() === rollNumber.toLowerCase());
-    if (found && found.role === role) {
-      set({ user: found, isAuthenticated: true });
-      return true;
+  login: async (rollNumber, password, role) => {
+  try {
+    const res = await fetch("http://localhost:5000/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ rollNumber, password, role }),
+    });
+
+    const data = await res.json();
+
+    console.log("LOGIN RESPONSE:", data);   
+
+    if (!res.ok) {
+      console.error("Login failed:", data.error);
+      return false;
     }
+
+    localStorage.setItem("token", data.token);
+
+    console.log("TOKEN SAVED:", data.token);
+
+    localStorage.setItem("userId", data.user.id);
+
+    set({
+      user: data.user,
+      isAuthenticated: true,
+    });
+
+    return true;
+  } catch (err) {
+    console.error("Login error:", err);
     return false;
-  },
-  logout: () => set({ user: null, isAuthenticated: false }),
+  }
+},
+  logout: () => {
+  localStorage.removeItem("token");
+  localStorage.removeItem("userId");
+  set({ user: null, isAuthenticated: false });
+},
 }));
 
-// Mock data helpers
-export const mockAttendance: Record<string, AttendanceRecord[]> = {
-  '2025-01': Array.from({ length: 31 }, (_, i) => ({
-    date: `2025-01-${String(i + 1).padStart(2, '0')}`,
-    status: i % 7 === 0 ? 'absent' as const : i % 10 === 0 ? 'leave' as const : 'present' as const,
-  })),
-  '2025-02': Array.from({ length: 28 }, (_, i) => ({
-    date: `2025-02-${String(i + 1).padStart(2, '0')}`,
-    status: i % 6 === 0 ? 'absent' as const : i % 12 === 0 ? 'leave' as const : 'present' as const,
-  })),
-};
+export async function fetchStudentsOnly(token: string) {
+  const res = await fetch("http://localhost:5000/api/users/students", {
+    headers: {
+      Authorization: `Bearer ${token}`
+    },
+    cache: "no-store"
+  });
 
-export const mockBills: MessBill[] = [
-  { month: 1, year: 2025, totalDaysPresent: 26, costPerDay: 120, totalAmount: 3120, paidAmount: 3120, balance: 0 },
-  { month: 2, year: 2025, totalDaysPresent: 24, costPerDay: 120, totalAmount: 2880, paidAmount: 2000, balance: 880 },
-];
+  return res.json();
+}
 
-export const mockNotifications: Notification[] = [
-  { id: '1', message: 'Mess timings changed: Dinner will be served from 7:00 PM to 9:00 PM starting next week.', sentBy: 'ADMIN001', createdAt: '2025-02-25T10:00:00Z' },
-  { id: '2', message: 'Mess bills for January have been generated. Please check your dashboard.', sentBy: 'ADMIN001', createdAt: '2025-02-01T09:00:00Z' },
-  { id: '3', message: 'Special menu for Republic Day celebration on 26th January.', sentBy: 'ADMIN001', createdAt: '2025-01-24T14:00:00Z' },
-];
+export async function sendNotification(message: string, token: string) {
+  const res = await fetch("http://localhost:5000/api/notifications", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`
+    },
+    body: JSON.stringify({ message })
+  });
 
-export const getAllStudents = () => mockStudents;
-export const getAllUsers = () => [...mockStudents, ...mockAdmins];
+  return res.json();
+}
+
+export async function fetchNotifications(token: string) {
+  const res = await fetch("http://localhost:5000/api/notifications", {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
+
+  return res.json();
+}
+
+export async function fetchStudents(token: string) {
+  const res = await fetch("http://localhost:5000/api/users", {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
+
+  return res.json();
+}
+export async function deleteLeave(id: string, token: string) {
+  const res = await fetch(`http://localhost:5000/api/leave/${id}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
+
+  return res.json();
+}
+
+export async function fetchBills(studentId: string, token: string) {
+  const res = await fetch(`http://localhost:5000/api/bills/student/${studentId}`, {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
+
+  return res.json();
+}
+
+export async function assignLeave(
+  userId: string,
+  fromDate: string,
+  toDate: string,
+  token: string
+) {
+  const res = await fetch("http://localhost:5000/api/leave", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({
+      userId,
+      fromDate,
+      toDate,
+    }),
+  });
+
+  return res.json();
+}

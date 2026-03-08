@@ -1,19 +1,48 @@
-import { useState } from 'react';
-import { getAllStudents } from '@/lib/store';
+//src/components/admin/adminattendance.tsx
+
+import {  useEffect, useState } from 'react';
+import { fetchStudentsOnly } from '@/lib/store';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
+import { markAttendance } from "@/services/attendance";
 import { CalendarDays } from 'lucide-react';
 
+interface Student {
+  id: string;
+  name: string;
+  rollNumber: string;
+}
+
 const AdminAttendance = () => {
-  const students = getAllStudents();
+ const [students, setStudents] = useState<Student[]>([]);
+
+useEffect(() => {
+  const loadStudents = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const data = await fetchStudentsOnly(token!);
+      setStudents(data);
+    } catch (err) {
+      console.error("Failed to fetch students");
+    }
+  };
+
+  loadStudents();
+}, []);
+
+useEffect(() => {
+  const initialStatuses = Object.fromEntries(
+    students.map(s => [s.id, "absent"])
+  ) as Record<string, 'present' | 'absent' | 'leave'>;
+  setStatuses(initialStatuses);
+}, [students]);
+
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [costPerDay, setCostPerDay] = useState('120');
-  const [statuses, setStatuses] = useState<Record<string, 'present' | 'absent' | 'leave'>>(
-    Object.fromEntries(students.map(s => [s.id, 'absent']))
-  );
+const [statuses, setStatuses] = useState<Record<string, 'present' | 'absent' | 'leave'>>({});
 
   const toggleStatus = (id: string) => {
     setStatuses(prev => ({
@@ -22,27 +51,54 @@ const AdminAttendance = () => {
     }));
   };
 
-  const markAllPresent = () => {
-    setStatuses(prev => {
-      const next = { ...prev };
-      Object.keys(next).forEach(id => {
-        if (next[id] !== 'leave') next[id] = 'present';
-      });
-      return next;
-    });
-  };
+const markAllPresent = () => {
+  setStatuses(prev => {
+    const updated = { ...prev };
 
-  const markAllAbsent = () => {
-    setStatuses(prev => {
-      const next = { ...prev };
-      Object.keys(next).forEach(id => {
-        if (next[id] !== 'leave') next[id] = 'absent';
-      });
-      return next;
+    students.forEach(student => {
+      if (updated[student.id] != "leave") {
+        updated[student.id] = "present";
+      }
     });
-  };
 
-  const save = () => toast.success(`Attendance saved for ${date}`);
+    return updated;
+  });
+};
+
+ const markAllAbsent = () => {
+  setStatuses(prev => {
+    const updated = { ...prev };
+
+    students.forEach(student => {
+      if (updated[student.id] != "leave") {
+        updated[student.id] = "absent";
+      }
+    });
+
+    return updated;
+  });
+};
+
+const save = async () => {
+  const token = localStorage.getItem("token");
+
+  try {
+    await Promise.all(
+      Object.entries(statuses).map(([studentId, status]) =>
+        markAttendance(studentId, date, status, token!)
+      )
+    );
+
+    // 👇 trigger update across tabs
+    localStorage.setItem("attendanceUpdated", Date.now().toString());
+
+    toast.success("Attendance saved successfully");
+  } catch (err) {
+    console.log(err);
+    toast.error("Failed to save attendance");
+  }
+};
+
   const generateBills = () => toast.success('Monthly bills generated for all students!');
 
   return (
@@ -67,23 +123,17 @@ const AdminAttendance = () => {
             <div key={s.id} className="flex items-center justify-between py-3 border-b border-border last:border-0">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-lg gradient-primary flex items-center justify-center text-xs font-bold text-primary-foreground">
-                  {s.name.charAt(0)}
+                  {s.name?.charAt(0) || "?"}
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-foreground">{s.name}</p>
+                  <p className="text-sm font-medium text-foreground">{s.name || "Unknown"}</p>
                   <p className="text-xs text-muted-foreground">{s.rollNumber}</p>
                 </div>
               </div>
-              <button
-                onClick={() => toggleStatus(s.id)}
-                className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
-                  statuses[s.id] === 'present' ? 'bg-success/15 text-success' :
-                  statuses[s.id] === 'leave' ? 'bg-leave/15 text-leave' :
-                  'bg-destructive/15 text-destructive'
-                }`}
-              >
-                {statuses[s.id].charAt(0).toUpperCase() + statuses[s.id].slice(1)}
-              </button>
+             <button
+  onClick={() => toggleStatus(s.id)}
+  className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${ (statuses[s.id] || "absent") === "present" ? "bg-success/15 text-success" : (statuses[s.id] || "absent") === "leave" ? "bg-leave/15 text-leave" : "bg-destructive/15 text-destructive" }`} > {(statuses[s.id] || "absent").charAt(0).toUpperCase() + (statuses[s.id] || "absent").slice(1)}
+</button>
             </div>
           ))}
         </CardContent>

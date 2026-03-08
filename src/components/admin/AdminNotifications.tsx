@@ -5,18 +5,28 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { Send } from 'lucide-react';
+import { sendNotification } from "@/lib/store";
 
 const AdminNotifications = () => {
   const [message, setMessage] = useState('');
 
-  const handleSend = () => {
-    if (!message.trim()) {
-      toast.error('Please write a message');
-      return;
-    }
-    toast.success('Notification sent to all students!');
-    setMessage('');
-  };
+  const handleSend = async () => {
+  if (!message.trim()) {
+    toast.error("Please write a message");
+    return;
+  }
+
+  const token = localStorage.getItem("token");
+
+  const res = await sendNotification(message, token!);
+
+  if (res.error) {
+    toast.error(res.error);
+  } else {
+    toast.success("Notification sent to all students!");
+    setMessage("");
+  }
+};
 
   return (
     <div className="max-w-lg">

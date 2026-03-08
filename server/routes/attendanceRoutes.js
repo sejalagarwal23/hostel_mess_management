@@ -10,4 +10,5 @@ const { auth, adminOnly } = require('../middleware/auth');
 router.get('/:userId', auth, getByUser);
 router.post('/', auth, adminOnly, markAttendance);
 
+
 module.exports = router;
