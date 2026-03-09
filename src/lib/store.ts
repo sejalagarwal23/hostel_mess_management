@@ -49,7 +49,7 @@ export const useAuth = create<AuthState>((set) => ({
   isAuthenticated: false,
   login: async (rollNumber, password, role) => {
   try {
-    const res = await fetch("http://localhost:5000/api/auth/login", {
+    const res = await fetch("https://mess-management-backend-wyd2.onrender.com/api/auth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ rollNumber, password, role }),
@@ -89,7 +89,7 @@ export const useAuth = create<AuthState>((set) => ({
 }));
 
 export async function fetchStudentsOnly(token: string) {
-  const res = await fetch("http://localhost:5000/api/users/students", {
+  const res = await fetch("https://mess-management-backend-wyd2.onrender.com/api/users/students", {
     headers: {
       Authorization: `Bearer ${token}`
     },
@@ -100,7 +100,7 @@ export async function fetchStudentsOnly(token: string) {
 }
 
 export async function sendNotification(message: string, token: string) {
-  const res = await fetch("http://localhost:5000/api/notifications", {
+  const res = await fetch("https://mess-management-backend-wyd2.onrender.com/api/notifications", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -113,7 +113,7 @@ export async function sendNotification(message: string, token: string) {
 }
 
 export async function fetchNotifications(token: string) {
-  const res = await fetch("http://localhost:5000/api/notifications", {
+  const res = await fetch("https://mess-management-backend-wyd2.onrender.com/api/notifications", {
     headers: {
       Authorization: `Bearer ${token}`
     }
@@ -123,7 +123,7 @@ export async function fetchNotifications(token: string) {
 }
 
 export async function fetchStudents(token: string) {
-  const res = await fetch("http://localhost:5000/api/users", {
+  const res = await fetch("https://mess-management-backend-wyd2.onrender.com/api/users", {
     headers: {
       Authorization: `Bearer ${token}`
     }
@@ -132,7 +132,7 @@ export async function fetchStudents(token: string) {
   return res.json();
 }
 export async function deleteLeave(id: string, token: string) {
-  const res = await fetch(`http://localhost:5000/api/leave/${id}`, {
+  const res = await fetch(`https://mess-management-backend-wyd2.onrender.com/api/leave/${id}`, {
     method: "DELETE",
     headers: {
       Authorization: `Bearer ${token}`
@@ -143,7 +143,7 @@ export async function deleteLeave(id: string, token: string) {
 }
 
 export async function fetchBills(studentId: string, token: string) {
-  const res = await fetch(`http://localhost:5000/api/bills/student/${studentId}`, {
+  const res = await fetch(`https://mess-management-backend-wyd2.onrender.com/api/bills/student/${studentId}`, {
     headers: {
       Authorization: `Bearer ${token}`
     }
@@ -158,7 +158,7 @@ export async function assignLeave(
   toDate: string,
   token: string
 ) {
-  const res = await fetch("http://localhost:5000/api/leave", {
+  const res = await fetch("https://mess-management-backend-wyd2.onrender.com/api/leave", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

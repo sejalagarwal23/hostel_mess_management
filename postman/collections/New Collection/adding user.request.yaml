@@ -1,6 +1,6 @@
 $kind: http-request
 name: adding user
-url: http://localhost:5000/api/auth/register
+url: https://mess-management-backend-wyd2.onrender.com/api/auth/register
 method: POST
 body:
   type: json

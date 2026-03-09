@@ -1,6 +1,6 @@
 $kind: http-request
 name: view user
-url: http://localhost:5000/api/users
+url: https://mess-management-backend-wyd2.onrender.com/api/users
 method: GET
 auth:
   type: bearer

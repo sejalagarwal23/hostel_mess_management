@@ -46,7 +46,7 @@ const AdminMessBills = () => {
       for (const student of data) {
 
         const res = await fetch(
-          `http://localhost:5000/api/bills/student/${student.id}`,
+          `https://mess-management-backend-wyd2.onrender.com/api/bills/student/${student.id}`,
           {
             headers: { Authorization: `Bearer ${token}` }
           }
@@ -77,7 +77,7 @@ const AdminMessBills = () => {
       const token = localStorage.getItem("token");
 
       const res = await fetch(
-        `http://localhost:5000/api/bills/monthly-cost?month=${selectedMonth}&year=${selectedYear}`,
+        `https://mess-management-backend-wyd2.onrender.com/api/bills/monthly-cost?month=${selectedMonth}&year=${selectedYear}`,
         {
           headers: {
             Authorization: `Bearer ${token}`
@@ -118,7 +118,7 @@ const AdminMessBills = () => {
       const token = localStorage.getItem("token");
 
       const res = await fetch(
-        "http://localhost:5000/api/bills/monthly-cost",
+        "https://mess-management-backend-wyd2.onrender.com/api/bills/monthly-cost",
         {
           method: "PUT",
           headers: {
@@ -147,7 +147,7 @@ const AdminMessBills = () => {
     }
   };
 
-  // ---------------- GENERATE MONTHLY BILLS ----------------
+  // GENERATE MONTHLY BILLs
 
   const generateMonthlyBills = async () => {
 
@@ -156,7 +156,7 @@ const AdminMessBills = () => {
       const token = localStorage.getItem("token");
 
       const res = await fetch(
-        "http://localhost:5000/api/bills/generate-monthly",
+        "https://mess-management-backend-wyd2.onrender.com/api/bills/generate-monthly",
         {
           method: "POST",
           headers: {

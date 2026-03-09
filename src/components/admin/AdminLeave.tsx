@@ -34,7 +34,7 @@ const AdminLeave = () => {
     const token = localStorage.getItem("token");
     if (!token) return;
 
-    const res = await fetch("http://localhost:5000/api/leave/all", {
+    const res = await fetch("https://mess-management-backend-wyd2.onrender.com/api/leave/all", {
       headers: { Authorization: `Bearer ${token}` }
     });
 

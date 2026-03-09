@@ -57,7 +57,7 @@ const StudentAttendance = () => {
       const monthString = `${currentYear}-${String(idx + 1).padStart(2, "0")}`;
 
       const res = await fetch(
-        `http://localhost:5000/api/attendance/${userId}?month=${monthString}`,
+        `https://mess-management-backend-wyd2.onrender.com/api/attendance/${userId}?month=${monthString}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,

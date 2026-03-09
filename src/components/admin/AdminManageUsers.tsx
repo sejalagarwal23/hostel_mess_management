@@ -35,7 +35,7 @@ const AdminManageUsers = () => {
   useEffect(() => {
   const loadUsers = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/users", {
+      const res = await fetch("https://mess-management-backend-wyd2.onrender.com/api/users", {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`
         }
@@ -63,7 +63,7 @@ const handleAdd = async (e: React.FormEvent<HTMLFormElement>) => {
   e.preventDefault();
   try {
     const token = localStorage.getItem("token");
-    const res = await fetch("http://localhost:5000/api/auth/register", {
+    const res = await fetch("https://mess-management-backend-wyd2.onrender.com/api/auth/register", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -96,7 +96,7 @@ const handleAdd = async (e: React.FormEvent<HTMLFormElement>) => {
 }); 
     setView("list");
     // reload users
-    const usersRes = await fetch("http://localhost:5000/api/users", {
+    const usersRes = await fetch("https://mess-management-backend-wyd2.onrender.com/api/users", {
       headers: {
         Authorization: `Bearer ${token}`
       }
@@ -110,14 +110,7 @@ const handleAdd = async (e: React.FormEvent<HTMLFormElement>) => {
 };
 
   if (view === 'detail' && selectedUser) {
-    // const totalDeducted = mockBills.reduce((sum, b) => sum + b.totalAmount, 0);
-    // const balance = SEMESTER_PRESET - totalDeducted;
 
-    // // Get attendance summary
-    // const allAttendance = Object.values(mockAttendance).flat();
-    // const presentDays = allAttendance.filter(a => a.status === 'present').length;
-    // const absentDays = allAttendance.filter(a => a.status === 'absent').length;
-    // const leaveDays = allAttendance.filter(a => a.status === 'leave').length;
 
     const totalDeducted = 0;
 const balance = SEMESTER_PRESET;
