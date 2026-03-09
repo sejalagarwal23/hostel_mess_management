@@ -100,3 +100,21 @@ exports.generateMonthlyBills = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+exports.getMonthlyCost = async (req, res) => {
+  try {
+
+    const { month, year } = req.query;
+
+    const record = await MonthlyCost.findOne({ month, year });
+
+    if (!record) {
+      return res.json({ cost: 120 }); // default
+    }
+
+    res.json({ cost: record.costPerDay }); // ✅ FIXED
+
+  } catch (err) {
+    res.status(500).json({ error: "Failed to fetch monthly cost" });
+  }
+};
