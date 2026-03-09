@@ -107,10 +107,10 @@
     background: linear-gradient(135deg, hsl(239, 37%, 32%), hsl(257, 8%, 36%));
   }
   .gradient-accent {
-    background: linear-gradient(135deg, hsl(0, 0%, 100%), hsl(33, 5%, 65%));
+    background: linear-gradient(135deg, hsl(75, 7%, 87%), hsl(75, 7%, 87%));
   }
   .gradient-sidebar {
-    background: linear-gradient(180deg, hsl(216, 3%, 71%), hsl(0, 0%, 0%));
+    background: linear-gradient(180deg, hsl(214, 22%, 56%), hsl(214, 22%, 56%));
   }
   .shadow-card {
     box-shadow: 0 1px 3px 0 hsl(220 30% 12% / 0.06), 0 1px 2px -1px hsl(220 30% 12% / 0.06);
