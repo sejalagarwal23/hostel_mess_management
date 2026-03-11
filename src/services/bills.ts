@@ -1,7 +1,7 @@
 // src\services\bills.ts
 
 export async function getStudentBills(userId: string, token: string) {
-  const res = await fetch(`http://mess-management-backend-wyd2.onrender.com/api/bills/student/${userId}`, {
+  const res = await fetch(`https://mess-management-backend-wyd2.onrender.com/api/bills/student/${userId}`, {
     headers: {
       Authorization: `Bearer ${token}`
     }

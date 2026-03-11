@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { IndianRupee, CalendarDays } from "lucide-react";
 
-const API = "http://mess-management-backend-wyd2.onrender.com/api";
+const API = "https://mess-management-backend-wyd2.onrender.com/api";
 
 const months = [
   "January","February","March","April","May","June",
@@ -59,7 +59,7 @@ const AdminMessBills = () => {
       if (!student.id) continue; // prevent undefined API call
 
       const res = await fetch(
-        `http://mess-management-backend-wyd2.onrender.com/api/bills/student/${student.id}`,
+        `https://mess-management-backend-wyd2.onrender.com/api/bills/student/${student.id}`,
         {
           headers: { Authorization: `Bearer ${token}` }
         }

@@ -38,7 +38,7 @@ export interface Notification {
 }
 
 
-const API_URL = "http://mess-management-backend-wyd2.onrender.com/api";
+const API_URL = "https://mess-management-backend-wyd2.onrender.com/api";
 
 interface AuthState {
   user: User | null;

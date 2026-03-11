@@ -1,5 +1,5 @@
 // services\attendance.ts
-const API = "http://mess-management-backend-wyd2.onrender.com/api";
+const API = "https://mess-management-backend-wyd2.onrender.com/api";
 
 export async function getAttendance(userId: string, token: string) {
   const res = await fetch(`${API}/attendance/${userId}`, {

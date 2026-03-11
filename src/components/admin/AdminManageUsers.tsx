@@ -34,7 +34,7 @@ const AdminManageUsers = () => {
     const loadUsers = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await fetch("http://mess-management-backend-wyd2.onrender.com/api/users", {
+        const res = await fetch("https://mess-management-backend-wyd2.onrender.com/api/users", {
           headers: { Authorization: `Bearer ${token}` }
         });
         const data = await res.json();
@@ -57,7 +57,7 @@ const AdminManageUsers = () => {
     e.preventDefault();
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch("http://mess-management-backend-wyd2.onrender.com/api/auth/register", {
+      const res = await fetch("https://mess-management-backend-wyd2.onrender.com/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify(formData)
@@ -71,7 +71,7 @@ const AdminManageUsers = () => {
       setFormData({ name: "", rollNumber: "", password: "", phone: "", role: "student", email: "", hostelNumber: "", semester: 0 });
       setView("list");
       // reload users
-      const usersRes = await fetch("http://mess-management-backend-wyd2.onrender.com/api/users", {
+      const usersRes = await fetch("https://mess-management-backend-wyd2.onrender.com/api/users", {
         headers: { Authorization: `Bearer ${token}` }
       });
       const users = await usersRes.json();
@@ -87,7 +87,7 @@ const AdminManageUsers = () => {
     if (!confirm("Are you sure you want to delete this user? This action cannot be undone.")) return;
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`http://mess-management-backend-wyd2.onrender.com/api/users/${userId}`, {
+      const res = await fetch(`https://mess-management-backend-wyd2.onrender.com/api/users/${userId}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -100,7 +100,7 @@ const AdminManageUsers = () => {
       setView("list");
       setSelectedUser(null);
       // Reload users
-      const usersRes = await fetch("http://mess-management-backend-wyd2.onrender.com/api/users", {
+      const usersRes = await fetch("https://mess-management-backend-wyd2.onrender.com/api/users", {
         headers: { Authorization: `Bearer ${token}` }
       });
       const users = await usersRes.json();
