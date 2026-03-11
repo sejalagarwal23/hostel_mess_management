@@ -1,32 +1,27 @@
-//src/components/stuednts/studentattendance.tsx
+// src/components/students/StudentAttendance.tsx
 
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
-
-/*
-  
-  We are keeping billing mock for now.
-  Remove bills array once:
-  - You create backend bill model
-  - You create GET /api/bills route
-  - You fetch bill using useEffect
-*/
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const bills = [
-  {
-    month: 1,
-    costPerDay: 100,
-    totalAmount: 2500,
-  },
-  {
-    month: 2,
-    costPerDay: 100,
-    totalAmount: 2300,
-  },
+  { month: 1, costPerDay: 100, totalAmount: 2500 },
+  { month: 2, costPerDay: 100, totalAmount: 2300 },
 ];
-  const currentYear = new Date().getFullYear();
-const months = [ "January","February","March","April","May","June", "July","August","September","October","November","December" ];
+
+const currentYear = new Date().getFullYear();
+
+const months = [
+  "January","February","March","April","May","June",
+  "July","August","September","October","November","December"
+];
+
 const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 type Attendance = {
@@ -36,7 +31,8 @@ type Attendance = {
 };
 
 const StudentAttendance = () => {
-   const [selectedMonth, setSelectedMonth] = useState(
+
+  const [selectedMonth, setSelectedMonth] = useState(
     String(new Date().getMonth())
   );
 
@@ -45,49 +41,62 @@ const StudentAttendance = () => {
 
   const idx = parseInt(selectedMonth);
 
-
   useEffect(() => {
-  const fetchAttendance = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      const userId = localStorage.getItem("userId");
 
-      if (!token || !userId) return;
+    const fetchAttendance = async () => {
+      try {
 
-      const monthString = `${currentYear}-${String(idx + 1).padStart(2, "0")}`;
+        const token = localStorage.getItem("token");
+        const userId = localStorage.getItem("userId");
 
-      const res = await fetch(
-        `https://mess-management-backend-wyd2.onrender.com/api/attendance/${userId}?month=${monthString}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          }, cache: "no-store"
+        if (!token || !userId) return;
+
+        const monthString = `${currentYear}-${String(idx + 1).padStart(2, "0")}`;
+
+        const res = await fetch(
+          `http://localhost:5000/api/attendance/${userId}?month=${monthString}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+            cache: "no-store",
+          }
+        );
+
+        const data = await res.json();
+
+        console.log("Attendance API response:", data);
+
+        if (Array.isArray(data)) {
+          setRecords(data);
+        } else {
+          console.error("Attendance API returned non-array:", data);
+          setRecords([]);
         }
-      );
-      const data = await res.json();
-      setRecords(data);
-    } catch (error) {
-      console.error("Error fetching attendance:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
-  fetchAttendance();
+      } catch (error) {
+        console.error("Error fetching attendance:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const interval = setInterval(fetchAttendance, 5000); // refresh every 5 sec
+    fetchAttendance();
 
-  return () => clearInterval(interval);
+  }, [selectedMonth]);
 
-}, [selectedMonth]);
 
- 
 
-  // Filter records by selected month
+  // Filter records by month
   const filteredRecords = records.filter((r) => {
     const recordDate = new Date(r.date);
-    return recordDate.getMonth() === idx;
+    return (
+      recordDate.getMonth() === idx &&
+      recordDate.getFullYear() === currentYear
+    );
   });
+
+
 
   const presentCount = filteredRecords.filter(
     (r) => r.status === "present"
@@ -102,27 +111,35 @@ const StudentAttendance = () => {
   ).length;
 
 
+
   const firstDay = new Date(currentYear, idx, 1).getDay();
 
-  // 🔵 STILL USING MOCK BILL
   const bill = bills.find((b) => b.month === idx + 1);
+
+
 
   if (loading) {
     return <div className="p-4">Loading attendance...</div>;
   }
 
+
+
   return (
     <div className="max-w-3xl">
+
       <h1 className="text-2xl font-heading font-bold text-foreground mb-6">
         Attendance
       </h1>
 
+
       {/* Month Selector */}
+
       <div className="mb-6">
         <Select value={selectedMonth} onValueChange={setSelectedMonth}>
           <SelectTrigger className="w-48">
             <SelectValue />
           </SelectTrigger>
+
           <SelectContent>
             {months.map((m, i) => (
               <SelectItem key={i} value={String(i)}>
@@ -130,36 +147,50 @@ const StudentAttendance = () => {
               </SelectItem>
             ))}
           </SelectContent>
+
         </Select>
       </div>
 
+
+
       {/* Stats */}
+
       <div className="grid grid-cols-3 gap-3 mb-6">
+
         <StatCard
           label="Present"
           count={presentCount}
           className="bg-green-100 text-green-700"
         />
+
         <StatCard
           label="Absent"
           count={absentCount}
           className="bg-red-100 text-red-700"
         />
+
         <StatCard
           label="Leave"
           count={leaveCount}
           className="bg-yellow-100 text-yellow-700"
         />
+
       </div>
 
+
+
       {/* Calendar */}
+
       <Card className="shadow-card mb-6">
+
         <CardHeader>
           <CardTitle className="text-lg">
             {months[idx]} {currentYear}
           </CardTitle>
         </CardHeader>
+
         <CardContent>
+
           <div className="grid grid-cols-7 gap-1 mb-2">
             {dayNames.map((d) => (
               <div
@@ -171,51 +202,75 @@ const StudentAttendance = () => {
             ))}
           </div>
 
+
+
           <div className="grid grid-cols-7 gap-1">
+
             {Array.from({ length: firstDay }).map((_, i) => (
               <div key={`empty-${i}`} />
             ))}
 
-            {Array.from({ length: new Date(currentYear, idx + 1, 0).getDate() }).map((_, i) => {
-  const day = i + 1;
 
-  const record = records.find(
-    r => new Date(r.date).getDate() === day
-  );
 
-  const status = record?.status;
+            {Array.from({
+              length: new Date(currentYear, idx + 1, 0).getDate(),
+            }).map((_, i) => {
 
-  return (
-    <div
-      key={day}
-      className={`aspect-square flex items-center justify-center rounded-md text-xs font-medium ${
-        status === "present"
-          ? "bg-green-200 text-green-800"
-          : status === "absent"
-          ? "bg-red-200 text-red-800"
-          : status === "leave"
-          ? "bg-yellow-200 text-yellow-800"
-          : "bg-muted"
-      }`}
-    >
-      {day}
-    </div>
-  );
-})}
+              const day = i + 1;
+
+              const record = filteredRecords.find((r) => {
+                const recordDate = new Date(r.date);
+                return recordDate.getDate() === day;
+              });
+
+              const status = record?.status;
+
+              return (
+
+                <div
+                  key={day}
+                  className={`aspect-square flex items-center justify-center rounded-md text-xs font-medium ${
+                    status === "present"
+                      ? "bg-green-200 text-green-800"
+                      : status === "absent"
+                      ? "bg-red-200 text-red-800"
+                      : status === "leave"
+                      ? "bg-yellow-200 text-yellow-800"
+                      : "bg-muted"
+                  }`}
+                >
+                  {day}
+                </div>
+
+              );
+
+            })}
+
           </div>
 
+
+
           <div className="flex gap-4 mt-4 pt-4 border-t border-border">
+
             <Legend color="bg-green-500" label="Present" />
             <Legend color="bg-red-500" label="Absent" />
             <Legend color="bg-yellow-500" label="Leave" />
+
           </div>
+
         </CardContent>
+
       </Card>
 
 
+
+      {/* Mock Bill */}
+
       {bill && (
         <Card className="shadow-card">
+
           <CardContent className="py-4">
+
             <div className="flex items-center justify-between">
               <span className="text-sm text-muted-foreground">
                 Cost per day
@@ -231,12 +286,17 @@ const StudentAttendance = () => {
                 ₹{bill.totalAmount}
               </span>
             </div>
+
           </CardContent>
+
         </Card>
       )}
+
     </div>
   );
 };
+
+
 
 const StatCard = ({
   label,
@@ -252,6 +312,8 @@ const StatCard = ({
     <p className="text-xs font-medium">{label}</p>
   </div>
 );
+
+
 
 const Legend = ({
   color,

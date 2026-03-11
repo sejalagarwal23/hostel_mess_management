@@ -44,7 +44,7 @@ const StudentMessBill = () => {
         }
 
         const res = await fetch(
-          `https://mess-management-backend-wyd2.onrender.com/api/bills/student/${studentId}`,
+          `http://localhost:5000/api/bills/student/${studentId}`,
           {
             headers: {
               Authorization: `Bearer ${token}`

@@ -1,8 +1,8 @@
-//src\lib\store.ts
+// src/lib/store.ts
 
-import { create } from 'zustand';
+import { create } from "zustand";
 
-export type UserRole = 'student' | 'admin';
+export type UserRole = "student" | "admin";
 
 export interface User {
   id: string;
@@ -17,7 +17,7 @@ export interface User {
 
 export interface AttendanceRecord {
   date: string;
-  status: 'present' | 'absent' | 'leave';
+  status: "present" | "absent" | "leave";
 }
 
 export interface MessBill {
@@ -37,6 +37,16 @@ export interface Notification {
   createdAt: string;
 }
 
+/* ======================================
+   API BASE URL (LOCAL BACKEND)
+====================================== */
+
+const API_URL = "http://localhost:5000/api";
+
+/* ======================================
+   AUTH STATE
+====================================== */
+
 interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
@@ -47,110 +57,109 @@ interface AuthState {
 export const useAuth = create<AuthState>((set) => ({
   user: null,
   isAuthenticated: false,
+
   login: async (rollNumber, password, role) => {
-  try {
-    const res = await fetch("https://mess-management-backend-wyd2.onrender.com/api/auth/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ rollNumber, password, role }),
-    });
+    try {
+      const res = await fetch(`${API_URL}/auth/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ rollNumber, password, role }),
+      });
 
-    const data = await res.json();
+      const data = await res.json();
 
-    console.log("LOGIN RESPONSE:", data);   
+      console.log("LOGIN RESPONSE:", data);
 
-    if (!res.ok) {
-      console.error("Login failed:", data.error);
+      if (!res.ok) {
+        console.error("Login failed:", data.error);
+        return false;
+      }
+
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("userId", data.user.id);
+
+      console.log("TOKEN SAVED:", data.token);
+
+      set({
+        user: data.user,
+        isAuthenticated: true,
+      });
+
+      return true;
+    } catch (err) {
+      console.error("Login error:", err);
       return false;
     }
+  },
 
-    localStorage.setItem("token", data.token);
-
-    console.log("TOKEN SAVED:", data.token);
-
-    localStorage.setItem("userId", data.user.id);
+  logout: () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("userId");
 
     set({
-      user: data.user,
-      isAuthenticated: true,
+      user: null,
+      isAuthenticated: false,
     });
-
-    return true;
-  } catch (err) {
-    console.error("Login error:", err);
-    return false;
-  }
-},
-  logout: () => {
-  localStorage.removeItem("token");
-  localStorage.removeItem("userId");
-  set({ user: null, isAuthenticated: false });
-},
+  },
 }));
 
+/* ======================================
+   STUDENTS
+====================================== */
+
 export async function fetchStudentsOnly(token: string) {
-  const res = await fetch("https://mess-management-backend-wyd2.onrender.com/api/users/students", {
+  const res = await fetch(`${API_URL}/users/students`, {
     headers: {
-      Authorization: `Bearer ${token}`
+      Authorization: `Bearer ${token}`,
     },
-    cache: "no-store"
-  });
-
-  return res.json();
-}
-
-export async function sendNotification(message: string, token: string) {
-  const res = await fetch("https://mess-management-backend-wyd2.onrender.com/api/notifications", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`
-    },
-    body: JSON.stringify({ message })
-  });
-
-  return res.json();
-}
-
-export async function fetchNotifications(token: string) {
-  const res = await fetch("https://mess-management-backend-wyd2.onrender.com/api/notifications", {
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
+    cache: "no-store",
   });
 
   return res.json();
 }
 
 export async function fetchStudents(token: string) {
-  const res = await fetch("https://mess-management-backend-wyd2.onrender.com/api/users", {
+  const res = await fetch(`${API_URL}/users`, {
     headers: {
-      Authorization: `Bearer ${token}`
-    }
-  });
-
-  return res.json();
-}
-export async function deleteLeave(id: string, token: string) {
-  const res = await fetch(`https://mess-management-backend-wyd2.onrender.com/api/leave/${id}`, {
-    method: "DELETE",
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
+      Authorization: `Bearer ${token}`,
+    },
   });
 
   return res.json();
 }
 
-export async function fetchBills(studentId: string, token: string) {
-  const res = await fetch(`https://mess-management-backend-wyd2.onrender.com/api/bills/student/${studentId}`, {
+/* ======================================
+   NOTIFICATIONS
+====================================== */
+
+export async function sendNotification(message: string, token: string) {
+  const res = await fetch(`${API_URL}/notifications`, {
+    method: "POST",
     headers: {
-      Authorization: `Bearer ${token}`
-    }
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ message }),
   });
 
   return res.json();
 }
+
+export async function fetchNotifications(token: string) {
+  const res = await fetch(`${API_URL}/notifications`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  return res.json();
+}
+
+/* ======================================
+   LEAVE MANAGEMENT
+====================================== */
 
 export async function assignLeave(
   userId: string,
@@ -158,7 +167,7 @@ export async function assignLeave(
   toDate: string,
   token: string
 ) {
-  const res = await fetch("https://mess-management-backend-wyd2.onrender.com/api/leave", {
+  const res = await fetch(`${API_URL}/leave`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -169,6 +178,31 @@ export async function assignLeave(
       fromDate,
       toDate,
     }),
+  });
+
+  return res.json();
+}
+
+export async function deleteLeave(id: string, token: string) {
+  const res = await fetch(`${API_URL}/leave/${id}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  return res.json();
+}
+
+/* ======================================
+   BILLS
+====================================== */
+
+export async function fetchBills(studentId: string, token: string) {
+  const res = await fetch(`${API_URL}/bills/student/${studentId}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
   });
 
   return res.json();

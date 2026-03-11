@@ -1,5 +1,5 @@
 // services\attendance.ts
-const API = "https://mess-management-backend-wyd2.onrender.com/api";
+const API = "http://localhost:5000/api";
 
 export async function getAttendance(userId: string, token: string) {
   const res = await fetch(`${API}/attendance/${userId}`, {
@@ -15,19 +15,26 @@ export async function getAttendance(userId: string, token: string) {
   return res.json();
 }
 
-export async function markAttendance(
+
+
+export const markAttendance = async (
   userId: string,
   date: string,
   status: string,
   token: string
-) {
+) => {
+
   const res = await fetch(`${API}/attendance`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
+      Authorization: `Bearer ${token}`
     },
-    body: JSON.stringify({ userId, date, status }),
+    body: JSON.stringify({
+      userId,
+      date,
+      status
+    })
   });
 
   if (!res.ok) {
@@ -35,4 +42,4 @@ export async function markAttendance(
   }
 
   return res.json();
-}
+};

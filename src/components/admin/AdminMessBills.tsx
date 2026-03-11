@@ -6,6 +6,8 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { IndianRupee, CalendarDays } from "lucide-react";
 
+const API = "http://localhost:5000/api";
+
 const months = [
   "January","February","March","April","May","June",
   "July","August","September","October","November","December"
@@ -32,43 +34,55 @@ const AdminMessBills = () => {
 
   // ---------------- LOAD STUDENTS + BILL TOTALS ----------------
 
-  const loadStudents = async () => {
-    try {
+ const loadStudents = async () => {
+  try {
 
-      const token = localStorage.getItem("token");
+    const token = localStorage.getItem("token");
 
-      const data = await fetchStudentsOnly(token!);
+    const data = await fetchStudentsOnly(token!);
 
-      setStudents(data);
+    console.log("Raw students:", data);
 
-      const totals: Record<string, number> = {};
+    // FIX: convert Mongo _id → id
+    const mappedStudents = data.map((s: any) => ({
+  id: s._id || s.id || s.userId,
+  name: s.name,
+  rollNumber: s.rollNumber
+}));
 
-      for (const student of data) {
+    setStudents(mappedStudents);
 
-        const res = await fetch(
-          `https://mess-management-backend-wyd2.onrender.com/api/bills/student/${student.id}`,
-          {
-            headers: { Authorization: `Bearer ${token}` }
-          }
-        );
+    const totals: Record<string, number> = {};
 
-        const bills = await res.json();
+    for (const student of mappedStudents) {
 
-        const total = bills.reduce(
-          (sum: number, b: Bill) => sum + (b.totalAmount || 0),
-          0
-        );
+      if (!student.id) continue; // prevent undefined API call
 
-        totals[student.id] = total;
-      }
+      const res = await fetch(
+        `http://localhost:5000/api/bills/student/${student.id}`,
+        {
+          headers: { Authorization: `Bearer ${token}` }
+        }
+      );
 
-      setStudentTotals(totals);
+      const bills = await res.json();
 
-    } catch (err) {
-      console.error("Failed to fetch students");
+      console.log("Bills for student", student.id, bills[0]);
+
+      const total = bills.reduce(
+  (sum: number, b: Bill) => sum + (b.totalAmount || 0),
+  0
+);
+
+      totals[student.id] = total;
     }
-  };
 
+    setStudentTotals(totals);
+
+  } catch (err) {
+    console.error("Failed to fetch students", err);
+  }
+};
   // ---------------- LOAD MONTHLY COST ----------------
 
   const loadMonthlyCost = async () => {
@@ -77,7 +91,7 @@ const AdminMessBills = () => {
       const token = localStorage.getItem("token");
 
       const res = await fetch(
-        `https://mess-management-backend-wyd2.onrender.com/api/bills/monthly-cost?month=${selectedMonth}&year=${selectedYear}`,
+        `${API}/bills/monthly-cost?month=${selectedMonth}&year=${selectedYear}`,
         {
           headers: {
             Authorization: `Bearer ${token}`
@@ -111,6 +125,7 @@ const AdminMessBills = () => {
 
   // ---------------- SAVE MONTHLY COST ----------------
 
+  
   const handleSaveCosts = async () => {
 
     try {
@@ -118,7 +133,7 @@ const AdminMessBills = () => {
       const token = localStorage.getItem("token");
 
       const res = await fetch(
-        "https://mess-management-backend-wyd2.onrender.com/api/bills/monthly-cost",
+        `${API}/bills/monthly-cost`,
         {
           method: "PUT",
           headers: {
@@ -147,7 +162,7 @@ const AdminMessBills = () => {
     }
   };
 
-  // GENERATE MONTHLY BILLs
+  // ---------------- GENERATE MONTHLY BILLS ----------------
 
   const generateMonthlyBills = async () => {
 
@@ -156,7 +171,7 @@ const AdminMessBills = () => {
       const token = localStorage.getItem("token");
 
       const res = await fetch(
-        "https://mess-management-backend-wyd2.onrender.com/api/bills/generate-monthly",
+        `${API}/bills/generate-monthly`,
         {
           method: "POST",
           headers: {
@@ -191,7 +206,7 @@ const AdminMessBills = () => {
         Mess Bill Management
       </h1>
 
-      {/* ---------------- COST SETUP ---------------- */}
+      {/* COST SETUP */}
 
       <Card className="shadow-card">
 
@@ -206,8 +221,6 @@ const AdminMessBills = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
 
-            {/* Month */}
-
             <div>
               <p className="text-sm mb-1 text-muted-foreground">Month</p>
 
@@ -220,39 +233,26 @@ const AdminMessBills = () => {
                   <option key={i} value={i + 1}>{m}</option>
                 ))}
               </select>
-
             </div>
 
-            {/* Cost */}
-
             <div>
-
-              <p className="text-sm mb-1 text-muted-foreground">
-                Cost Per Day
-              </p>
+              <p className="text-sm mb-1 text-muted-foreground">Cost Per Day</p>
 
               <Input
                 type="number"
                 value={selectedCost}
                 onChange={(e) => setSelectedCost(e.target.value)}
               />
-
             </div>
 
-            {/* Year */}
-
             <div>
-
-              <p className="text-sm mb-1 text-muted-foreground">
-                Year
-              </p>
+              <p className="text-sm mb-1 text-muted-foreground">Year</p>
 
               <Input
                 type="number"
                 value={selectedYear}
                 onChange={(e) => setSelectedYear(Number(e.target.value))}
               />
-
             </div>
 
           </div>
@@ -268,7 +268,7 @@ const AdminMessBills = () => {
 
       </Card>
 
-      {/* ---------------- GENERATE BILLS ---------------- */}
+      {/* GENERATE BILLS */}
 
       <Card className="shadow-card">
 
@@ -288,7 +288,7 @@ const AdminMessBills = () => {
 
       </Card>
 
-      {/* ---------------- STUDENT BILL SUMMARY ---------------- */}
+      {/* STUDENT BILL SUMMARY */}
 
       <Card className="shadow-card">
 
