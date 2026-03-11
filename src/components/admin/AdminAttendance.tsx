@@ -89,7 +89,7 @@ const save = async () => {
       )
     );
 
-    // 👇 trigger update across tabs
+    // trigger update across tabs
     localStorage.setItem("attendanceUpdated", Date.now().toString());
 
     toast.success("Attendance saved successfully");

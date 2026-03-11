@@ -37,15 +37,8 @@ export interface Notification {
   createdAt: string;
 }
 
-/* ======================================
-   API BASE URL (LOCAL BACKEND)
-====================================== */
 
-const API_URL = "http://localhost:5000/api";
-
-/* ======================================
-   AUTH STATE
-====================================== */
+const API_URL = "http://mess-management-backend-wyd2.onrender.com/api";
 
 interface AuthState {
   user: User | null;
@@ -105,10 +98,6 @@ export const useAuth = create<AuthState>((set) => ({
   },
 }));
 
-/* ======================================
-   STUDENTS
-====================================== */
-
 export async function fetchStudentsOnly(token: string) {
   const res = await fetch(`${API_URL}/users/students`, {
     headers: {
@@ -130,9 +119,6 @@ export async function fetchStudents(token: string) {
   return res.json();
 }
 
-/* ======================================
-   NOTIFICATIONS
-====================================== */
 
 export async function sendNotification(message: string, token: string) {
   const res = await fetch(`${API_URL}/notifications`, {
@@ -157,9 +143,6 @@ export async function fetchNotifications(token: string) {
   return res.json();
 }
 
-/* ======================================
-   LEAVE MANAGEMENT
-====================================== */
 
 export async function assignLeave(
   userId: string,
@@ -194,9 +177,7 @@ export async function deleteLeave(id: string, token: string) {
   return res.json();
 }
 
-/* ======================================
-   BILLS
-====================================== */
+
 
 export async function fetchBills(studentId: string, token: string) {
   const res = await fetch(`${API_URL}/bills/student/${studentId}`, {

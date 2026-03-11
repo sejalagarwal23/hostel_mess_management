@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { IndianRupee, CalendarDays } from "lucide-react";
 
-const API = "http://localhost:5000/api";
+const API = "http://mess-management-backend-wyd2.onrender.com/api";
 
 const months = [
   "January","February","March","April","May","June",
@@ -59,7 +59,7 @@ const AdminMessBills = () => {
       if (!student.id) continue; // prevent undefined API call
 
       const res = await fetch(
-        `http://localhost:5000/api/bills/student/${student.id}`,
+        `http://mess-management-backend-wyd2.onrender.com/api/bills/student/${student.id}`,
         {
           headers: { Authorization: `Bearer ${token}` }
         }
@@ -83,7 +83,7 @@ const AdminMessBills = () => {
     console.error("Failed to fetch students", err);
   }
 };
-  // ---------------- LOAD MONTHLY COST ----------------
+  //LOAD MONTHLY COST
 
   const loadMonthlyCost = async () => {
     try {
@@ -110,20 +110,20 @@ const AdminMessBills = () => {
     }
   };
 
-  // ---------------- INITIAL LOAD ----------------
+  // INITIAL LOAD 
 
   useEffect(() => {
     loadStudents();
     loadMonthlyCost();
   }, []);
 
-  // ---------------- LOAD COST WHEN MONTH/YEAR CHANGES ----------------
+  //  LOAD COST WHEN MONTH/YEAR CHANGES 
 
   useEffect(() => {
     loadMonthlyCost();
   }, [selectedMonth, selectedYear]);
 
-  // ---------------- SAVE MONTHLY COST ----------------
+  //SAVE MONTHLY COST
 
   
   const handleSaveCosts = async () => {
@@ -162,7 +162,7 @@ const AdminMessBills = () => {
     }
   };
 
-  // ---------------- GENERATE MONTHLY BILLS ----------------
+  // GENERATE MONTHLY BILLS
 
   const generateMonthlyBills = async () => {
 

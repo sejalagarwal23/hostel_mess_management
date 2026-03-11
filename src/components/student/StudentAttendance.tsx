@@ -54,7 +54,7 @@ const StudentAttendance = () => {
         const monthString = `${currentYear}-${String(idx + 1).padStart(2, "0")}`;
 
         const res = await fetch(
-          `http://localhost:5000/api/attendance/${userId}?month=${monthString}`,
+          `http://mess-management-backend-wyd2.onrender.com/api/attendance/${userId}?month=${monthString}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -85,8 +85,6 @@ const StudentAttendance = () => {
 
   }, [selectedMonth]);
 
-
-
   // Filter records by month
   const filteredRecords = records.filter((r) => {
     const recordDate = new Date(r.date);
@@ -95,8 +93,6 @@ const StudentAttendance = () => {
       recordDate.getFullYear() === currentYear
     );
   });
-
-
 
   const presentCount = filteredRecords.filter(
     (r) => r.status === "present"
@@ -110,13 +106,8 @@ const StudentAttendance = () => {
     (r) => r.status === "leave"
   ).length;
 
-
-
   const firstDay = new Date(currentYear, idx, 1).getDay();
-
   const bill = bills.find((b) => b.month === idx + 1);
-
-
 
   if (loading) {
     return <div className="p-4">Loading attendance...</div>;
@@ -130,9 +121,7 @@ const StudentAttendance = () => {
       <h1 className="text-2xl font-heading font-bold text-foreground mb-6">
         Attendance
       </h1>
-
-
-      {/* Month Selector */}
+ {/* Month Selector  */}
 
       <div className="mb-6">
         <Select value={selectedMonth} onValueChange={setSelectedMonth}>
