@@ -18,6 +18,73 @@ const AdminManageUsers = () => {
   const [search, setSearch] = useState('');
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [users, setUsers] = useState<User[]>([]);
+  const [attendanceSummary, setAttendanceSummary] = useState({
+  present: 0,
+  absent: 0,
+  leave: 0
+});
+
+const [billSummary, setBillSummary] = useState({
+  totalDeducted: 0,
+  balance: SEMESTER_PRESET
+});
+
+useEffect(() => {
+
+  const loadStudentDetails = async () => {
+
+    if (!selectedUser) return;
+
+    try {
+
+      const token = localStorage.getItem("token");
+
+      // GET ATTENDANCE
+      const attendanceRes = await fetch(
+        `https://mess-management-backend-wyd2.onrender.com/api/attendance/${selectedUser.id}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      const attendance = await attendanceRes.json();
+
+      const present = attendance.filter((a:any)=>a.status==="present").length;
+      const absent = attendance.filter((a:any)=>a.status==="absent").length;
+      const leave = attendance.filter((a:any)=>a.status==="leave").length;
+
+      setAttendanceSummary({ present, absent, leave });
+
+      // GET BILLS
+      const billRes = await fetch(
+        `https://mess-management-backend-wyd2.onrender.com/api/bills/student/${selectedUser.id}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      const bills = await billRes.json();
+
+      let totalDeducted = 0;
+
+bills.forEach((b:any)=>{
+  totalDeducted += b.totalAmount || 0;
+});
+
+const balance = SEMESTER_PRESET - totalDeducted;
+
+setBillSummary({
+  totalDeducted,
+  balance
+});
+
+    } catch (err) {
+
+      console.error("Failed loading student details");
+
+    }
+
+  };
+
+  loadStudentDetails();
+
+}, [selectedUser]);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -113,11 +180,6 @@ const AdminManageUsers = () => {
 
   // Detail View 
   if (view === 'detail' && selectedUser) {
-    const totalDeducted = 0;
-    const balance = SEMESTER_PRESET;
-    const presentDays = 0;
-    const absentDays = 0;
-    const leaveDays = 0;
 
     return (
       <div className="max-w-2xl">
@@ -157,6 +219,38 @@ const AdminManageUsers = () => {
   )}
 </CardContent>
         </Card>
+        <Card className="shadow-card mb-4">
+
+<CardHeader>
+<CardTitle>Attendance Summary</CardTitle>
+</CardHeader>
+
+<CardContent className="grid grid-cols-3 gap-4">
+
+<Detail label="Present Days" value={String(attendanceSummary.present)} />
+<Detail label="Absent Days" value={String(attendanceSummary.absent)} />
+<Detail label="Leave Days" value={String(attendanceSummary.leave)} />
+
+</CardContent>
+
+</Card>
+<Card className="shadow-card">
+
+<CardHeader>
+<CardTitle>Mess Bill Summary</CardTitle>
+</CardHeader>
+
+<CardContent className="grid grid-cols-3 gap-4">
+
+<Detail label="Semester Preset" value={`₹${SEMESTER_PRESET}`} />
+
+<Detail label="Total Deducted" value={`₹${billSummary.totalDeducted}`} />
+
+<Detail label="Remaining Balance" value={`₹${billSummary.balance}`} />
+
+</CardContent>
+
+</Card>
 
         <div className="mt-4 flex justify-end">
           <Button onClick={() => { setView('list'); setSelectedUser(null); }}>Back</Button>

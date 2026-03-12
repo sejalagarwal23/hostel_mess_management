@@ -32,18 +32,13 @@ const AdminMessBills = () => {
   const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
   const [selectedCost, setSelectedCost] = useState<string>("120");
 
-  // ---------------- LOAD STUDENTS + BILL TOTALS ----------------
+  //  LOAD STUDENTS+BILL TOTALS 
 
  const loadStudents = async () => {
   try {
-
     const token = localStorage.getItem("token");
-
     const data = await fetchStudentsOnly(token!);
-
-    console.log("Raw students:", data);
-
-    // FIX: convert Mongo _id → id
+    console.log("Raw students:", data); 
     const mappedStudents = data.map((s: any) => ({
   id: s._id || s.id || s.userId,
   name: s.name,
@@ -51,13 +46,9 @@ const AdminMessBills = () => {
 }));
 
     setStudents(mappedStudents);
-
     const totals: Record<string, number> = {};
-
     for (const student of mappedStudents) {
-
       if (!student.id) continue; // prevent undefined API call
-
       const res = await fetch(
         `https://mess-management-backend-wyd2.onrender.com/api/bills/student/${student.id}`,
         {
@@ -70,21 +61,18 @@ const AdminMessBills = () => {
       console.log("Bills for student", student.id, bills[0]);
 
       const total = bills.reduce(
-  (sum: number, b: Bill) => sum + (b.totalAmount || 0),
-  0
+  (sum: number, b: Bill) => sum + (b.totalAmount || 0),0
 );
-
       totals[student.id] = total;
     }
-
     setStudentTotals(totals);
 
   } catch (err) {
     console.error("Failed to fetch students", err);
   }
 };
-  //LOAD MONTHLY COST
 
+  //LOAD MONTHLY COST
   const loadMonthlyCost = async () => {
     try {
 
@@ -111,27 +99,20 @@ const AdminMessBills = () => {
   };
 
   // INITIAL LOAD 
-
   useEffect(() => {
     loadStudents();
     loadMonthlyCost();
   }, []);
 
   //  LOAD COST WHEN MONTH/YEAR CHANGES 
-
   useEffect(() => {
     loadMonthlyCost();
   }, [selectedMonth, selectedYear]);
 
   //SAVE MONTHLY COST
-
-  
   const handleSaveCosts = async () => {
-
     try {
-
       const token = localStorage.getItem("token");
-
       const res = await fetch(
         `${API}/bills/monthly-cost`,
         {
@@ -150,13 +131,9 @@ const AdminMessBills = () => {
       );
 
       const data = await res.json();
-
       if (!res.ok) throw new Error(data.error);
-
       toast.success("Monthly cost saved successfully");
-
       loadMonthlyCost();
-
     } catch (err) {
       toast.error("Failed to save monthly cost");
     }

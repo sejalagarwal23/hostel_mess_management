@@ -83,7 +83,7 @@ const StudentAttendance = () => {
 
     fetchAttendance();
 
-  }, [selectedMonth]);
+  }, [idx, selectedMonth]);
 
   // Filter records by month
   const filteredRecords = records.filter((r) => {
