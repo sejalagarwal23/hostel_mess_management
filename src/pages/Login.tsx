@@ -119,10 +119,7 @@ const Login = () => {
                 Sign In
               </Button>
 
-              <p className="text-xs text-center text-muted-foreground mt-4">
-                Demo: Use <span className="font-medium text-foreground">2021CS001</span> (student) or{' '}
-                <span className="font-medium text-foreground">ADMIN001</span> (admin) with any password
-              </p>
+  
 
             </form>
           </CardContent>
