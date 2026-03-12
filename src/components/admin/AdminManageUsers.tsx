@@ -219,7 +219,8 @@ setBillSummary({
   )}
 </CardContent>
         </Card>
-        <Card className="shadow-card mb-4">
+{selectedUser.role === "student" && (
+<Card className="shadow-card mb-4">
 
 <CardHeader>
 <CardTitle>Attendance Summary</CardTitle>
@@ -234,6 +235,8 @@ setBillSummary({
 </CardContent>
 
 </Card>
+)}
+{selectedUser.role === "student" && (
 <Card className="shadow-card">
 
 <CardHeader>
@@ -251,7 +254,7 @@ setBillSummary({
 </CardContent>
 
 </Card>
-
+)}
         <div className="mt-4 flex justify-end">
           <Button onClick={() => { setView('list'); setSelectedUser(null); }}>Back</Button>
           <Button
